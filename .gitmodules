@@ -1,0 +1,3 @@
+[submodule "Solver"]
+	path = Solver
+	url = https://github.com/desuboruto/GaruffSolver.git
