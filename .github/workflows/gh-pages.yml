@@ -11,7 +11,9 @@ jobs:
         steps:
             # Checkout the code
             - uses: actions/checkout@v2
-
+              with:
+                  submodules: recursive
+                  
             # Install .NET Core SDK
             - name: Setup .NET Core
               uses: actions/setup-dotnet@v2
