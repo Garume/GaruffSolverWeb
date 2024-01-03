@@ -1,0 +1,53 @@
+﻿@page "/dpllsolver"
+@using GaruffSolver
+@using GaruffSolver.CNF
+@using GaruffSolver.Solver
+@using GaruffSolver.Values
+
+<PageTitle>DpllSolver</PageTitle>
+
+<h1>DpllSolver</h1>
+
+<textarea @bind="_inputFormula" placeholder="Enter your formula here"></textarea>
+<button @onclick="SolveFormula">Solve</button>
+
+@if (_solution is {IsSatisfied: true })
+{
+        <p>Solution: @_solution</p>
+}
+else
+{
+        <p>No solution found</p>
+}
+
+@code {
+    private string _inputFormula;
+    private Model _solution;
+
+    private void SolveFormula()
+    {
+        var solver = new GaruffSolver(new SolveBuilder(new global::GaruffSolver.Solver.DPLL.DpllSolver()));
+
+        var clauses = new List<Dictionary<ushort, bool>>();
+
+        foreach (var c in _inputFormula.Split("\n"))
+        {
+            var splitLine = c.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+            var clause = new Dictionary<ushort, bool>();
+            foreach (var literal in splitLine)
+            {
+                var isPositive = literal.StartsWith("-");
+                var name = ushort.Parse(isPositive ? literal[1..] : literal);
+                clause[name] = !isPositive;
+            }
+
+            clauses.Add(clause);
+        }
+        
+        var variableCount = clauses.SelectMany(x => x.Keys).Max();
+        var clauseCount = clauses.Count;
+        
+        var cnf = new Cnf(variableCount,clauseCount, clauses);
+        _solution = solver.Solve(cnf);
+    }
+}
